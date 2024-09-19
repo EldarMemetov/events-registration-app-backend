@@ -1,27 +1,8 @@
-// import Participant from '../models/Participant.js';
+// controllers/participantController.js
 
-// export const registerParticipant = async (req, res) => {
-//   const { fullName, email, dateOfBirth, source, eventId } = req.body;
-
-//   const participant = new Participant({
-//     fullName,
-//     email,
-//     dateOfBirth,
-//     source,
-//     eventId,
-//   });
-
-//   try {
-//     await participant.save();
-//     res.status(201).json(participant);
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// };
-import Joi from 'joi';
 import Participant from '../models/Participant.js';
+import Joi from 'joi';
 
-// Определение схемы валидации с помощью Joi
 const participantSchema = Joi.object({
   fullName: Joi.string().required(),
   email: Joi.string().email().required(),
@@ -32,29 +13,45 @@ const participantSchema = Joi.object({
   eventId: Joi.string().required(),
 });
 
-// Функция регистрации участника с валидацией
 export const registerParticipant = async (req, res) => {
-  // Получение данных из тела запроса
   const { fullName, email, dateOfBirth, source, eventId } = req.body;
 
   // Валидация данных
   const { error } = participantSchema.validate(req.body);
   if (error) return res.status(400).json({ message: error.details[0].message });
 
-  // Создание нового участника
-  const participant = new Participant({
-    fullName,
-    email,
-    dateOfBirth,
-    source,
-    eventId,
-  });
-
   try {
-    // Сохранение участника в базу данных
+    // Проверка, есть ли уже участник с таким же email и eventId
+    const existingParticipant = await Participant.findOne({ email, eventId });
+    if (existingParticipant) {
+      return res
+        .status(400)
+        .json({ message: 'Participant already registered for this event' });
+    }
+
+    const participant = new Participant({
+      fullName,
+      email,
+      dateOfBirth,
+      source,
+      eventId,
+    });
+
     await participant.save();
     res.status(201).json(participant);
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+};
+
+// Функция для получения участников по eventId
+export const getParticipantsByEvent = async (req, res) => {
+  const { eventId } = req.params;
+
+  try {
+    const participants = await Participant.find({ eventId });
+    res.json(participants);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };

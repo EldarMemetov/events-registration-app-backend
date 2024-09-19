@@ -1,20 +1,19 @@
-// import express from 'express';
-// import { registerParticipant } from '../controllers/participantController.js';
-
-// const router = express.Router();
-
-// router.post('/', registerParticipant);
-
-// export default router;
-
 import express from 'express';
-import { registerParticipant } from '../controllers/participantController.js';
+import {
+  registerParticipant,
+  getParticipantsByEvent,
+} from '../controllers/participantController.js';
 import Participant from '../models/Participant.js';
 
 const router = express.Router();
 
+// Регистрация участника
 router.post('/', registerParticipant);
 
+// Получение участников по eventId
+router.get('/:eventId', getParticipantsByEvent);
+
+// Получение всех участников с фильтрацией
 router.get('/', async (req, res) => {
   const { name, email } = req.query;
   const filter = {};
@@ -30,6 +29,7 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Получение статистики по участникам
 router.get('/daily-stats', async (req, res) => {
   try {
     const stats = await Participant.aggregate([
