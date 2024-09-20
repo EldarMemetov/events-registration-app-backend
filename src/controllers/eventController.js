@@ -1,8 +1,5 @@
-// controllers/eventController.js
-
 import Event from '../models/Event.js';
 
-// Получение всех событий
 export const getAllEvents = async (req, res) => {
   try {
     const events = await Event.find().sort({ eventDate: 1 });
@@ -12,7 +9,6 @@ export const getAllEvents = async (req, res) => {
   }
 };
 
-// Создание нового события
 export const createEvent = async (req, res) => {
   const event = new Event(req.body);
   try {
