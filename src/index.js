@@ -13,7 +13,6 @@ app.use(express.json());
 
 initMongoConnection();
 
-// API routes
 app.use('/api/events', eventRoutes);
 app.use('/api/participants', participantRoutes);
 

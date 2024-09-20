@@ -20,11 +20,7 @@ export const registerParticipant = async (req, res) => {
   const { fullName, email, eventId } = req.body;
 
   try {
-    const existingParticipant = await Participant.findOne({
-      email,
-      eventId,
-    });
-
+    const existingParticipant = await Participant.findOne({ email, eventId });
     if (existingParticipant) {
       return res.status(400).json({
         message: `Participant ${fullName} with email ${email} is already registered for this event.`,
@@ -42,6 +38,19 @@ export const registerParticipant = async (req, res) => {
 export const getAllParticipants = async (req, res) => {
   try {
     const participants = await Participant.find().populate('eventId');
+    res.json(participants);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getParticipantsByEventId = async (req, res) => {
+  const { eventId } = req.params;
+
+  try {
+    const participants = await Participant.find({ eventId }).populate(
+      'eventId',
+    );
     res.json(participants);
   } catch (error) {
     res.status(500).json({ message: error.message });
